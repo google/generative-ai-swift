@@ -13,23 +13,16 @@
 // limitations under the License.
 
 import Foundation
-import InternalGenerativeAI
 
-extension RPCError {
-  func isInvalidAPIKeyError() -> Bool {
-    return errorInfo?.reason == "API_KEY_INVALID"
-  }
+/// Errors that occur when generating content from a model.
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+public enum GenerateContentError: Error {
+  /// An internal error occurred. See the underlying error for more context.
+  case internalError(underlying: Error)
 
-  func isUnsupportedUserLocationError() -> Bool {
-    return message == RPCErrorMessage.unsupportedUserLocation.rawValue
-  }
-}
+  /// A prompt was blocked. See the response's `promptFeedback.blockReason` for more information.
+  case promptBlocked(response: GenerateContentResponse)
 
-enum RPCErrorMessage: String {
-  case unsupportedUserLocation = "User location is not supported for the API use."
-}
-
-enum InvalidCandidateError: Error {
-  case emptyContent(underlyingError: Error)
-  case malformedContent(underlyingError: Error)
+  /// A response didn't fully complete. See the `FinishReason` for more information.
+  case responseStoppedEarly(reason: FinishReason, response: GenerateContentResponse)
 }
